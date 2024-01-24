@@ -1,13 +1,13 @@
 package org.oss.quizgame;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -16,7 +16,9 @@ import com.google.firebase.database.FirebaseDatabase;
 public class SummaryActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
-    DatabaseReference mDatabase;
+    FirebaseDatabase db;
+    DatabaseReference ref;
+    DatabaseReference refPersonal;
     int currentScore;
     int highScore;
     ValueAnimator scoreAnimator;
@@ -27,10 +29,14 @@ public class SummaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_summary);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("leaderboard");
+        db = FirebaseDatabase.getInstance();
+        ref = db.getReference("leaderboard");
+        refPersonal = db.getReference("personal_leaderboard");
 
         Intent intent = getIntent();
         currentScore = intent.getIntExtra("score", 0);
+
+        saveScore(mAuth.getCurrentUser().getEmail());
 
         getHighScore(mAuth.getCurrentUser().getEmail());
 
@@ -40,14 +46,24 @@ public class SummaryActivity extends AppCompatActivity {
         Button leaderboardButton = findViewById(R.id.leaderboardButton);
         leaderboardButton.setOnClickListener(view -> startActivity(new Intent(SummaryActivity.this, LeaderboardActivity.class)));
 
+        Button personalLeaderboardButton = findViewById(R.id.personalLeaderboardButton);
+        personalLeaderboardButton.setOnClickListener(view -> startActivity(new Intent(SummaryActivity.this, PersonalLeaderboardActivity.class)));
+
         TextView mainMenuButton = findViewById(R.id.mainMenuButton);
         mainMenuButton.setOnClickListener(view -> startActivity(new Intent(SummaryActivity.this, MainActivity.class)));
+    }
+
+    private void saveScore(String email) {
+        String username = email.substring(0, email.indexOf('@'));
+        long currentTimeMillis = System.currentTimeMillis();
+
+        refPersonal.child(username).child(String.valueOf(currentTimeMillis)).setValue(currentScore);
     }
 
     private void getHighScore(String email) {
         String username = email.substring(0, email.indexOf('@'));
 
-        mDatabase.child(username).get().addOnSuccessListener(snapshot -> {
+        ref.child(username).get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists()) {
                 highScore = snapshot.getValue(Integer.class);
             } else {
@@ -100,7 +116,7 @@ public class SummaryActivity extends AppCompatActivity {
             // Update the actual highScore only if the new score is higher
             highScore = currentScore;
             // Update the high score in the database
-            mDatabase.child(username).setValue(highScore);
+            ref.child(username).setValue(highScore);
         }
     }
 }

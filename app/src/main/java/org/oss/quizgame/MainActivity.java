@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
     Button startGame;
     Button viewLeaderboard;
 
+    Button viewPersonalLeaderboard;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,5 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         viewLeaderboard = findViewById(R.id.leaderboardButton);
         viewLeaderboard.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, LeaderboardActivity.class)));
+
+        viewPersonalLeaderboard = findViewById(R.id.personalLeaderboardButton);
+        viewPersonalLeaderboard.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, PersonalLeaderboardActivity.class)));
     }
 }

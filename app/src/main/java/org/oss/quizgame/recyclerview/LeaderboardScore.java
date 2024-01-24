@@ -20,7 +20,7 @@ public class LeaderboardScore implements Comparable<LeaderboardScore> {
 
     @Override
     public int compareTo(LeaderboardScore other) {
-        // Compare UserScore objects based on scores
+        // Compare LeaderboardScore objects based on scores
         return Integer.compare(this.score, other.score);
     }
 }

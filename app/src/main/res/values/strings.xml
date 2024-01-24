@@ -26,4 +26,8 @@
     <string name="view_leaderboard">View Leaderboard</string>
     <string name="back">Back</string>
     <string name="go_to_main_menu">Go to Main menu</string>
+    <string name="leaderboard_datetime">%s</string>
+    <string name="leaderboard_datetime_header">Datetime</string>
+    <string name="personal_leaderboard_title">Personal Leaderboard</string>
+    <string name="personal_leaderboard_title_username">Personal Leaderboard (%s)</string>
 </resources>
