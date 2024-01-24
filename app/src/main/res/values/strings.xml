@@ -19,4 +19,11 @@
     <string name="leaderboard_place">#%d</string>
     <string name="leaderboard_username">%s</string>
     <string name="leaderboard_score">%d</string>
+    <string name="leaderboard_place_header">#</string>
+    <string name="leaderboard_username_header">Username</string>
+    <string name="leaderboard_score_header">Score</string>
+    <string name="leaderboard_title">Leaderboard</string>
+    <string name="view_leaderboard">View Leaderboard</string>
+    <string name="back">Back</string>
+    <string name="go_to_main_menu">Go to Main menu</string>
 </resources>

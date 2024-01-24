@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     TextView logout;
     FirebaseAuth mAuth;
     Button startGame;
+    Button viewLeaderboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,5 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         startGame = findViewById(R.id.startGameButton);
         startGame.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, GameActivity.class)));
+
+        viewLeaderboard = findViewById(R.id.leaderboardButton);
+        viewLeaderboard.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, LeaderboardActivity.class)));
     }
 }
