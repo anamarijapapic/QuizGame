@@ -16,4 +16,7 @@
     <string name="congratulations">Congratulations %s!</string>
     <string name="high_score">High-score: %d</string>
     <string name="play_again">Play Again</string>
+    <string name="leaderboard_place">#%d</string>
+    <string name="leaderboard_username">%s</string>
+    <string name="leaderboard_score">%d</string>
 </resources>
