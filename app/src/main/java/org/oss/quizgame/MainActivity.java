@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
     TextView logout;
     FirebaseAuth mAuth;
+    Button startGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,5 +29,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Successful logout", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         });
+
+        startGame = findViewById(R.id.startGameButton);
+        startGame.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, GameActivity.class)));
     }
 }
