@@ -33,13 +33,71 @@ public class GameActivity extends AppCompatActivity {
     private Button trueButton, falseButton;
     private AtomicInteger score;
     private int questionNumber;
+    private boolean isCallInterrupted = false;
+    private CountDownTimer countDownTimer;
+    private long remainingTimeMillis; // To store remaining time during interruptions
+
+    private static final String KEY_SCORE = "score";
+    private static final String KEY_QUESTION_NUMBER = "questionNumber";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        // Retrieve questions from the API
+        if (savedInstanceState != null) {
+            // Restore the game state when the activity is recreated
+            score = new AtomicInteger(savedInstanceState.getInt(KEY_SCORE));
+            questionNumber = savedInstanceState.getInt(KEY_QUESTION_NUMBER);
+            isCallInterrupted = savedInstanceState.getBoolean("isCallInterrupted");
+            remainingTimeMillis = savedInstanceState.getLong("remainingTimeMillis");
+        } else {
+            score = new AtomicInteger();
+            questionNumber = 0;
+            remainingTimeMillis = 60000; // Default 1 minute if not interrupted
+        }
+
+        if (!isCallInterrupted) {
+            // Only retrieve questions from the API if not interrupted by a call
+            retrieveQuestions();
+        } else {
+            // If interrupted, resume the game with the saved state
+            resumeGame();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        // Save the game state when the activity is destroyed
+        outState.putInt(KEY_SCORE, score.get());
+        outState.putInt(KEY_QUESTION_NUMBER, questionNumber);
+        outState.putBoolean("isCallInterrupted", isCallInterrupted);
+        outState.putLong("remainingTimeMillis", remainingTimeMillis);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause the game when the activity is paused (e.g., on a phone call)
+        isCallInterrupted = true;
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Resume the game when the activity is resumed after a pause (e.g., after a phone call)
+        if (isCallInterrupted) {
+            isCallInterrupted = false;
+            resumeGame();
+        }
+    }
+
+    private void retrieveQuestions() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://opentdb.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -70,6 +128,29 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    private void resumeGame() {
+        // Recreate the game loop with a new countdown timer
+        countDownTimer = new CountDownTimer(remainingTimeMillis, 1000) { // Use remaining time
+            final MediaPlayer mp = MediaPlayer.create(GameActivity.this, R.raw.clock_timer);
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                remainingTimeMillis = millisUntilFinished; // Update remaining time
+                timeText.setText(getString(R.string.time, millisUntilFinished / 1000));
+                mp.start();
+                displayQuestion();
+            }
+
+            @Override
+            public void onFinish() {
+                mp.stop();
+                Intent intent = new Intent(GameActivity.this, SummaryActivity.class);
+                intent.putExtra("score", score.get());
+                startActivity(intent);
+            }
+        }.start();
+    }
+
     private void startGame() {
         timeText = findViewById(R.id.remainingTime);
         scoreText = findViewById(R.id.score);
@@ -77,20 +158,18 @@ public class GameActivity extends AppCompatActivity {
         trueButton = findViewById(R.id.trueButton);
         falseButton = findViewById(R.id.falseButton);
 
-        score = new AtomicInteger();
         scoreText.setText(getString(R.string.score, score.get()));
-
-        questionNumber = 0;
 
         setupButtonListeners();
 
         // Start the game loop with a countdown timer
         // When the game loop is finished, show game summary
-        CountDownTimer countDownTimer = new CountDownTimer(60000, 1000) { // 1 minute, tick every second
+        countDownTimer = new CountDownTimer(remainingTimeMillis, 1000) { // Use remaining time
             final MediaPlayer mp = MediaPlayer.create(GameActivity.this, R.raw.clock_timer);
 
             @Override
             public void onTick(long millisUntilFinished) {
+                remainingTimeMillis = millisUntilFinished; // Update remaining time
                 timeText.setText(getString(R.string.time, millisUntilFinished / 1000));
                 mp.start();
                 displayQuestion();
