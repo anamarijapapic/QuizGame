@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     Button startGame;
     Button viewLeaderboard;
-
     Button viewPersonalLeaderboard;
+    Button viewPersonalLeaderboardTopScores;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,5 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
         viewPersonalLeaderboard = findViewById(R.id.personalLeaderboardButton);
         viewPersonalLeaderboard.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, PersonalLeaderboardActivity.class)));
+
+        viewPersonalLeaderboardTopScores = findViewById(R.id.personalLeaderboardTopScoresButton);
+        viewPersonalLeaderboardTopScores.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, PersonalLeaderboardTopScoresActivity.class)));
     }
 }

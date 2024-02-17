@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -36,6 +37,8 @@ public class SummaryActivity extends AppCompatActivity {
         Intent intent = getIntent();
         currentScore = intent.getIntExtra("score", 0);
 
+        getLeaderboardPosition(currentScore);
+
         saveScore(mAuth.getCurrentUser().getEmail());
 
         getHighScore(mAuth.getCurrentUser().getEmail());
@@ -48,6 +51,9 @@ public class SummaryActivity extends AppCompatActivity {
 
         Button personalLeaderboardButton = findViewById(R.id.personalLeaderboardButton);
         personalLeaderboardButton.setOnClickListener(view -> startActivity(new Intent(SummaryActivity.this, PersonalLeaderboardActivity.class)));
+
+        Button personalLeaderboardTopScoresButton = findViewById(R.id.personalLeaderboardTopScoresButton);
+        personalLeaderboardTopScoresButton.setOnClickListener(view -> startActivity(new Intent(SummaryActivity.this, PersonalLeaderboardTopScoresActivity.class)));
 
         TextView mainMenuButton = findViewById(R.id.mainMenuButton);
         mainMenuButton.setOnClickListener(view -> startActivity(new Intent(SummaryActivity.this, MainActivity.class)));
@@ -118,5 +124,27 @@ public class SummaryActivity extends AppCompatActivity {
             // Update the high score in the database
             ref.child(username).setValue(highScore);
         }
+    }
+
+    private void getLeaderboardPosition(int score) {
+        ref.orderByValue().get().addOnSuccessListener(snapshot -> {
+            int position = 1;
+            for (DataSnapshot child : snapshot.getChildren()) {
+                // get score for each user
+                int userScore = child.getValue(Integer.class);
+                // if the user's score is higher than the current user's score, increment position
+                if (userScore > score) {
+                    position++;
+                }
+                else {
+                    break;
+                }
+            }
+
+            TextView leaderboardPositionText = findViewById(R.id.leaderboardPosition);
+            leaderboardPositionText.setText(getString(R.string.leaderboard_position, position));
+        }).addOnFailureListener(e -> {
+            Log.d("Firebase", "Error getting data", e);
+        });
     }
 }

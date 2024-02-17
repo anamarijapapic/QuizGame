@@ -30,4 +30,6 @@
     <string name="leaderboard_datetime_header">Datetime</string>
     <string name="personal_leaderboard_title">Personal Leaderboard</string>
     <string name="personal_leaderboard_title_username">Personal Leaderboard (%s)</string>
+    <string name="personal_leaderboard_top_scores_title">Personal Leaderboard (Top Scores)</string>
+    <string name="leaderboard_position">This is %d. best score on the leaderboard!</string>
 </resources>
