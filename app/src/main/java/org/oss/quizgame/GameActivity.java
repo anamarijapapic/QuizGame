@@ -33,6 +33,7 @@ public class GameActivity extends AppCompatActivity {
     private Button trueButton, falseButton;
     private AtomicInteger score;
     private int questionNumber;
+    private MediaPlayer mp;
     private boolean isCallInterrupted = false;
     private CountDownTimer countDownTimer;
     private long remainingTimeMillis; // To store remaining time during interruptions
@@ -85,6 +86,7 @@ public class GameActivity extends AppCompatActivity {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
+        stopMusic();
     }
 
     @Override
@@ -131,24 +133,22 @@ public class GameActivity extends AppCompatActivity {
     private void resumeGame() {
         // Recreate the game loop with a new countdown timer
         countDownTimer = new CountDownTimer(remainingTimeMillis, 1000) { // Use remaining time
-            final MediaPlayer mp = MediaPlayer.create(GameActivity.this, R.raw.clock_timer);
-
             @Override
             public void onTick(long millisUntilFinished) {
                 remainingTimeMillis = millisUntilFinished; // Update remaining time
                 timeText.setText(getString(R.string.time, millisUntilFinished / 1000));
-                mp.start();
                 displayQuestion();
             }
 
             @Override
             public void onFinish() {
-                mp.stop();
+                stopMusic();
                 Intent intent = new Intent(GameActivity.this, SummaryActivity.class);
                 intent.putExtra("score", score.get());
                 startActivity(intent);
             }
         }.start();
+        playMusic();
     }
 
     private void startGame() {
@@ -165,24 +165,22 @@ public class GameActivity extends AppCompatActivity {
         // Start the game loop with a countdown timer
         // When the game loop is finished, show game summary
         countDownTimer = new CountDownTimer(remainingTimeMillis, 1000) { // Use remaining time
-            final MediaPlayer mp = MediaPlayer.create(GameActivity.this, R.raw.clock_timer);
-
             @Override
             public void onTick(long millisUntilFinished) {
                 remainingTimeMillis = millisUntilFinished; // Update remaining time
                 timeText.setText(getString(R.string.time, millisUntilFinished / 1000));
-                mp.start();
                 displayQuestion();
             }
 
             @Override
             public void onFinish() {
-                mp.stop();
+                stopMusic();
                 Intent intent = new Intent(GameActivity.this, SummaryActivity.class);
                 intent.putExtra("score", score.get());
                 startActivity(intent);
             }
         }.start();
+        playMusic();
     }
 
     private void setupButtonListeners() {
@@ -203,22 +201,18 @@ public class GameActivity extends AppCompatActivity {
 
     private void handleAnswer(String selectedAnswer) {
         int points = 100;
-        MediaPlayer mp;
 
         if (questionNumber < questions.length) {
             QuestionRepository question = questions[questionNumber];
 
             if (question.getCorrectAnswer().equals(selectedAnswer)) {
-                mp = MediaPlayer.create(this, R.raw.right_answer);
-                mp.start();
+                playCorrectAnswerSound();
                 score.getAndAdd(points);
             } else if (score.get() > 0) {
-                mp = MediaPlayer.create(this, R.raw.wrong_answer);
-                mp.start();
+                playWrongAnswerSound();
                 score.getAndAdd(-points);
             } else {
-                mp = MediaPlayer.create(this, R.raw.wrong_answer);
-                mp.start();
+                playWrongAnswerSound();
             }
 
             scoreText.setText(getString(R.string.score, score.get()));
@@ -227,5 +221,28 @@ public class GameActivity extends AppCompatActivity {
 
             displayQuestion();
         }
+    }
+
+    private void playMusic() {
+        mp = MediaPlayer.create(GameActivity.this, R.raw.clock_timer);
+        mp.start();
+    }
+
+    private void stopMusic() {
+        if (mp != null) {
+            mp.stop();
+            mp.release();
+            mp = null;
+        }
+    }
+
+    private void playCorrectAnswerSound() {
+        MediaPlayer mp = MediaPlayer.create(this, R.raw.right_answer);
+        mp.start();
+    }
+
+    private void playWrongAnswerSound() {
+        MediaPlayer mp = MediaPlayer.create(this, R.raw.wrong_answer);
+        mp.start();
     }
 }
